@@ -1,0 +1,88 @@
+﻿@{
+    ViewData["Title"] = "Все товары";
+}
+@model IEnumerable<Product>
+
+
+<h3 class="p-2 bg-primary text-white text-center">Товары</h3>
+
+<div class="container">
+    <div class="text-center">
+        @{
+            ViewBag.searches = new string[] { "Name", "Category.Name" };
+            ViewBag.sorts = new string[] { "Name", "Category.Name", "PurchasePrice", "RetailPrice" };
+        }
+        @Html.Partial("_PageOptions", Model)
+    </div>
+
+    @if (ViewBag.UpdateAll != true)
+    {
+        <div class="row">
+            <div class="col fw-bold">Название</div>
+            <div class="col fw-bold">Категория</div>
+            <div class="col fw-bold">Закупочная цена</div>
+            <div class="col fw-bold">Розничная цена</div>
+            <div class="col"></div>
+        </div>
+        <form asp-action="UpdateProduct" asp-controller="Home" method="post">
+            <div class="row">
+                <div class="col">
+                    <input name="Name" class="form-control" required />
+                </div>
+                <div class="col">
+                    <select class="form-control" name="CategoryId">
+                        <option disabled selected>Выберите категорию</option>
+                        @foreach (Category category in ViewBag.Categories)
+                        {
+                            <option value="@category.Id">@category.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col">
+                    <input name="PurchasePrice" class="form-control" required />
+                </div>
+                <div class="col">
+                    <input name="RetailPrice" class="form-control" required />
+                </div>
+                <div class="col">
+                    <button type="submit" class="btn btn-primary">Добавить</button>
+                </div>
+            </div>
+        </form>
+        @if (Model.Count() == 0)
+        {
+            <div class="row">
+                <div class="col text-center p-2">Нет данных</div>
+            </div>
+        }
+        else
+        {
+            @foreach (Product product in Model)
+            {
+                <div class="row р-2 mt-2">
+                    <div class="col">@product.Name</div>
+                    <div class="col">@product.Category.Name</div>
+                    <div class="col text-right">@product.PurchasePrice</div>
+                    <div class="col text-right">@product.RetailPrice</div>
+                    <div class="col">
+                        <form asp-action="DeleteProduct" method="post" asp-route-Id="@product.Id">
+                            <a asp-action="UpdateProduct" asp-route-id="@product.Id" class="btn btn-outline-primary">Обновить</a>
+                            <button type="submit" class="btn btn-danger">Удалить</button>
+                        </form>
+                    </div>
+                </div>
+            }
+        }
+        <div class="text-center mt-4">
+            <a asp-action="UpdateProduct" class="btn btn-primary">Добавить</a>
+            <a asp-action="UpdateAll" class="btn btn-primary">Редактировать всё</a>
+        </div>
+    }
+    else
+    {
+        @await Html.PartialAsync("_InlineEditor", Model)
+    }
+    <div class="text-center">
+        @Html.Partial("_Pages", Model)
+    </div>
+</div>
